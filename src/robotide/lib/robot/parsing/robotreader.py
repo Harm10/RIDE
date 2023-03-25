@@ -32,27 +32,30 @@ class RobotReader(object):
         self._pipe_ends = (' |', '\t|', u'\xa0|')
         self._separator_check = False
         self._cell_section = False
-        # print(f"DEBUG: RFLib RobotReader init spaces={self._spaces}")
+        print(f"DEBUG: RFLib RobotReader init spaces={self._spaces}")
 
     def read(self, file, populator, path=None):
         path = path or getattr(file, 'name', '<file-like object>')
         _ = path
         process = table_start = preamble = comments = False
-        # print(f"DEBUG: RFLib RobotReader start Reading file")
+        print(f"DEBUG: RFLib RobotReader start Reading file {file}")
         for lineno, line in enumerate(Utf8Reader(file).readlines(), start=1):
             if not self._separator_check:
                 self.check_separator(line.rstrip())
+            print(f"DEBUG: robotreader.read line={line.rstrip()}")
             cells = self.split_row(line.rstrip())
+            print(f"DEBUG: robotreader.read cells={cells}")
             # DEBUG cells = list(self._check_deprecations(cells, path, lineno))
             # DEBUG Not parsing # before any table
             if line.lstrip().startswith('#'):
                 if cells[0] == '':  # There is an initial empty cell, when #
                     cells.pop(0)
+                #print(f"DEBUG: robotreader.read startswitch # cells={cells}")
                 # populator.add(cells)
                 # continue
             if cells and cells[0].strip().startswith('*'):  # For the cases of *** Comments ***
                 if cells[0].replace('*', '').strip().lower() in ('comment', 'comments'):
-                    # print(f"DEBUG: robotreader.read detection of comments cells={cells}")
+                    #print(f"DEBUG: robotreader.read detection of comments cells={cells}")
                     process = True
                     comments = True
                     # if not preamble:
@@ -61,7 +64,7 @@ class RobotReader(object):
                     # if comments:
                     #    cells.insert(0, '')  # Last comments block
                     comments = False
-                # print(f"DEBUG: RFLib RobotReader *** section lineno={lineno} cells={cells}")
+                #print(f"DEBUG: RFLib RobotReader *** section lineno={lineno} cells={cells}")
             elif cells and cells == ['']:
                 comments = False
             if cells and cells[0].strip().startswith('*') and not comments and \
@@ -69,7 +72,7 @@ class RobotReader(object):
                 process = table_start = True
                 preamble = comments = False
             elif not table_start:
-                # print(f"DEBUG: RFLib RobotReader Enter Preamble block, lineno={lineno} cells={cells}")
+                #print(f"DEBUG: RFLib RobotReader Enter Preamble block, lineno={lineno} cells={cells}")
                 if not preamble:
                     preamble = True
                 populator.add_preamble(line)
@@ -78,11 +81,14 @@ class RobotReader(object):
                 # if comments:  # and cells[0] != '':
                 #    cells.insert(0, '')
                 #    # print(f"DEBUG: robotreader.read in comments cells={cells}")
-                # print(f"DEBUG: robotreader.read original line={line}\nparser={cells}")
+                #print(f"DEBUG: robotreader.read original line={line}\nparser={cells}")
                 populator.add(cells)
+            print(f"DEBUG: robotreader.read end cells={cells}")
         return populator.eof()
 
     def sharp_strip(self, line):
+        print(f"DEBUG: RFLib RobotReader sharp_strip input line={line}")
+        print(f"DEBUG: RFlib RobotReader self spaces={self._spaces}")
         row = []
         i = 0
         start_d_quote = end_d_quote = False
@@ -112,19 +118,20 @@ class RobotReader(object):
                 try:
                     if i > 0 and line[i-1] != '\\' and (line[i+1] == ' ' or line[i+1] == '#'):
                         index = i
-                        # print(f"DEBUG: RFLib RobotReader sharp_strip BREAK at # index={index}")
+                        print(f"DEBUG: RFLib RobotReader sharp_strip BREAK at # index={index}")
                         break
                 except IndexError:
                     i += 1
                     continue
             i += 1
+        print(f"DEBUG: RFLib RobotReader sharp_strip intermediate index={index} len={len(line)} line={line}")
         if index < len(line):
             cells = self._space_splitter.split(line[:index])
             row.extend(cells)
             row.append(line[index:])
         else:
             row = self._space_splitter.split(line)
-        # print(f"DEBUG: RFLib RobotReader sharp_strip after cells split index={index} row={row[:]}")
+        print(f"DEBUG: RFLib RobotReader sharp_strip after cells split index={index} row={row[:]}")
         # Remove empty cells after first non-empty
         first_non_empty = -1
         if row:
@@ -143,7 +150,7 @@ class RobotReader(object):
                     # print(f"DEBUG: RFLib RobotReader sharp_strip removing initial empty cell
                     # first_non_empty={first_non_empty}")
                     row.pop(0)
-        # print(f"DEBUG: RFLib RobotReader sharp_strip returning row={row[:]}")
+        print(f"DEBUG: RFLib RobotReader sharp_strip returning row={row[:]}")
         return row
 
     def split_row(self, row):
