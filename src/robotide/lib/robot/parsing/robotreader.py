@@ -88,50 +88,56 @@ class RobotReader(object):
 
     def sharp_strip(self, line):
         print(f"DEBUG: RFLib RobotReader sharp_strip input line={line}")
-        print(f"DEBUG: RFlib RobotReader self spaces={self._spaces}")
         row = []
         i = 0
-        start_d_quote = end_d_quote = False
-        start_s_quote = end_s_quote = False
-        index = len(line)
-        while i < len(line):
-            if line[i] == '"':
-                if end_d_quote:
-                    start_d_quote = True
-                    end_d_quote = False
-                elif start_d_quote:
-                    end_d_quote = True
-                else:
-                    start_d_quote = True
-            if line[i] == "'":
-                if end_s_quote:
-                    start_s_quote = True
-                    end_s_quote = False
-                elif start_s_quote:
-                    end_s_quote = True
-                else:
-                    start_s_quote = True
-            if line[i] == '#' and not start_d_quote and not start_s_quote:
-                if i == 0:
-                    index = 0
-                    break
-                try:
-                    if i > 0 and line[i-1] != '\\' and (line[i+1] == ' ' or line[i+1] == '#'):
-                        index = i
-                        print(f"DEBUG: RFLib RobotReader sharp_strip BREAK at # index={index}")
+        # Is there a sharp comment character in this line?
+        if "#" in line:
+            print(f"DEBUG: RFlib RobotReader # character found {line}")
+            print(f"DEBUG: RFlib RobotReader self spaces={self._spaces}")
+            start_d_quote = end_d_quote = False
+            start_s_quote = end_s_quote = False
+            index = len(line)
+            while i < len(line):
+                if line[i] == '"':
+                    if end_d_quote:
+                        start_d_quote = True
+                        end_d_quote = False
+                    elif start_d_quote:
+                        end_d_quote = True
+                    else:
+                        start_d_quote = True
+                if line[i] == "'":
+                    if end_s_quote:
+                        start_s_quote = True
+                        end_s_quote = False
+                    elif start_s_quote:
+                        end_s_quote = True
+                    else:
+                        start_s_quote = True
+                if line[i] == '#' and not start_d_quote and not start_s_quote:
+                    if i == 0:
+                        index = 0
                         break
-                except IndexError:
-                    i += 1
-                    continue
-            i += 1
-        print(f"DEBUG: RFLib RobotReader sharp_strip intermediate index={index} len={len(line)} line={line}")
-        if index < len(line):
-            cells = self._space_splitter.split(line[:index])
-            row.extend(cells)
-            row.append(line[index:])
+                    try:
+                        if i > 0 and line[i-1] != '\\' and (line[i+1] == ' ' or line[i+1] == '#'):
+                            index = i
+                            print(f"DEBUG: RFLib RobotReader sharp_strip BREAK at # index={index}")
+                            break
+                    except IndexError:
+                        i += 1
+                        continue
+                i += 1
+            print(f"DEBUG: RFLib RobotReader sharp_strip intermediate index={index} len={len(line)} line={line}")
+            if index < len(line):
+                cells = self._space_splitter.split(line[:index])
+                row.extend(cells)
+                row.append(line[index:])
+            else:
+                row = self._space_splitter.split(line)
+            print(f"DEBUG: RFLib RobotReader sharp_strip after cells split index={index} row={row[:]}")
         else:
             row = self._space_splitter.split(line)
-        print(f"DEBUG: RFLib RobotReader sharp_strip after cells split index={index} row={row[:]}")
+
         # Remove empty cells after first non-empty
         first_non_empty = -1
         if row:
