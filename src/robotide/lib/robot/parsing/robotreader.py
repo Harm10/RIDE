@@ -87,7 +87,7 @@ class RobotReader(object):
         return populator.eof()
 
     def sharp_strip(self, line):
-        print(f"DEBUG: RFLib RobotReader sharp_strip input line={line}")
+        #print(f"DEBUG: RFLib RobotReader sharp_strip input line={line}")
         row = []
         i = 0
         row = self._space_splitter.split(line)
@@ -109,7 +109,7 @@ class RobotReader(object):
                     # print(f"DEBUG: RFLib RobotReader sharp_strip removing initial empty cell
                     # first_non_empty={first_non_empty}")
                     row.pop(0)
-        print(f"DEBUG: RFLib RobotReader sharp_strip returning row={row[:]}")
+        #print(f"DEBUG: RFLib RobotReader sharp_strip returning row={row[:]}")
         return row
 
     def split_row(self, row):
