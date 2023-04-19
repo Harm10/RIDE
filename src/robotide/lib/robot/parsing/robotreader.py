@@ -32,19 +32,19 @@ class RobotReader(object):
         self._pipe_ends = (' |', '\t|', u'\xa0|')
         self._separator_check = False
         self._cell_section = False
-        print(f"DEBUG: RFLib RobotReader init spaces={self._spaces}")
+        #print(f"DEBUG: RFLib RobotReader init spaces={self._spaces}")
 
     def read(self, file, populator, path=None):
         path = path or getattr(file, 'name', '<file-like object>')
         _ = path
         process = table_start = preamble = comments = False
-        print(f"DEBUG: RFLib RobotReader start Reading file {file}")
+        #print(f"DEBUG: RFLib RobotReader start Reading file {file}")
         for lineno, line in enumerate(Utf8Reader(file).readlines(), start=1):
             if not self._separator_check:
                 self.check_separator(line.rstrip())
-            print(f"DEBUG: robotreader.read line={line.rstrip()}")
+            #print(f"DEBUG: robotreader.read line={line.rstrip()}")
             cells = self.split_row(line.rstrip())
-            print(f"DEBUG: robotreader.read cells={cells}")
+            #print(f"DEBUG: robotreader.read cells={cells}")
             # DEBUG cells = list(self._check_deprecations(cells, path, lineno))
             # DEBUG Not parsing # before any table
             if line.lstrip().startswith('#'):
@@ -83,7 +83,7 @@ class RobotReader(object):
                 #    # print(f"DEBUG: robotreader.read in comments cells={cells}")
                 #print(f"DEBUG: robotreader.read original line={line}\nparser={cells}")
                 populator.add(cells)
-            print(f"DEBUG: robotreader.read end cells={cells}")
+            #print(f"DEBUG: robotreader.read end cells={cells}")
         return populator.eof()
 
     def sharp_strip(self, line):
