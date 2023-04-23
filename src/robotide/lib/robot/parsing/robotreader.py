@@ -38,7 +38,7 @@ class RobotReader(object):
         path = path or getattr(file, 'name', '<file-like object>')
         _ = path
         process = table_start = preamble = comments = False
-        #print(f"DEBUG: RFLib RobotReader start Reading file {file}")
+        # print(f"DEBUG: RFLib RobotReader start Reading file {file}")
         for lineno, line in enumerate(Utf8Reader(file).readlines(), start=1):
             if not self._separator_check:
                 self.check_separator(line.rstrip())
