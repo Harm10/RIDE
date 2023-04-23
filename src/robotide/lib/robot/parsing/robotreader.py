@@ -92,8 +92,9 @@ class RobotReader(object):
         i = 0
         # Is there a sharp comment character in this code line?
         if line[:int(self._spaces)] == ' ' * self._spaces and "#" in line:
-            row = self._space_splitter.split(line)
-            print(f"DEBUG: RFLib RobotReader sharp_strip returning row={row[:]}")
+            chkrow = self._space_splitter.split(line)
+            print(f"DEBUG: RFLib RobotReader sharp_strip returning row={chkrow[:]}")
+            row = chkrow
         else:
             row = self._space_splitter.split(line)
         # Remove empty cells after first non-empty
